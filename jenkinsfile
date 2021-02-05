@@ -1,10 +1,37 @@
+properties([pipelineTriggers([githubPush()])])
+ 
 pipeline {
-    agent { docker { image 'python:3.5.1' } }
+    /* specify nodes for executing */
+    agent {
+        label 'github-ci'
+    }
+ 
     stages {
-        stage('build') {
+        /* checkout repo */
+        stage('Checkout SCM') {
             steps {
-                sh 'python --version'
+                checkout([
+                 $class: 'GitSCM',
+                 branches: [[name: 'main']],
+                 userRemoteConfigs: [[
+                    url: 'https://github.com/gsunilkumar2509/task2_trial.git',
+                    credentialsId: 'gsunilkkumar63',
+                 ]]
+                ])
+            }
+        }
+         stage('Do the deployment') {
+            steps {
+                echo ">> Run deploy applications "
             }
         }
     }
+ 
+    /* Cleanup workspace */
+    post {
+       always {
+           deleteDir()
+       }
+   }
 }
+
